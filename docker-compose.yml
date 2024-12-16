@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,PLAINTEXT_HOST://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    depends_on:
+      - zookeeper
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: redpanda-console
+    environment:
+      - KAFKA_BROKERS=host.docker.internal:9092
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    container_name: postgres
+
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: zxc
+      POSTGRES_DB: wbtech
