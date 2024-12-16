@@ -16,3 +16,4 @@ CREATE TABLE payments (
 
 -- +goose Down
 DROP TABLE IF EXISTS payments;
+

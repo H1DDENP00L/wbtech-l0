@@ -9,18 +9,18 @@ import (
 )
 
 const (
-	dbDriver = "postgres"
-	dbSource = "postgres://postgres:zxc@localhost:5432/wbtech?sslmode=disable"
+	DbDriver = "postgres"
+	DbSource = "postgres://postgres:zxc@localhost:5432/wbtech?sslmode=disable"
 )
 
 func DatabaseDown() {
 	// Подключение к базе данных
-	db, err := sql.Open(dbDriver, dbSource)
+	db, err := sql.Open(DbDriver, DbSource)
 	if err != nil {
 		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
 	}
 	defer db.Close()
-	if err := goose.Down(db, "./migrates"); err != nil {
+	if err := goose.DownTo(db, "./migrates", 0); err != nil {
 		log.Fatalf("Ошибка выполнения миграций: %v", err)
 	}
 	log.Println("Таблицам пиздец!")
@@ -28,7 +28,7 @@ func DatabaseDown() {
 
 func DatabaseUp() {
 	// Подключение к базе данных
-	db, err := sql.Open(dbDriver, dbSource)
+	db, err := sql.Open(DbDriver, DbSource)
 	if err != nil {
 		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
 	}

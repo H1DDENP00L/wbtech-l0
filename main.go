@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq" // PostgreSQL драйвер
 	"html/template"
 	"l0/consumer"
 	"l0/db"
@@ -44,6 +46,19 @@ func updateOrderCache(order producer.Order) {
 
 func main() {
 	db.DatabaseUp()
+
+	pg, err := sql.Open(db.DbDriver, db.DbSource)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer pg.Close()
+
+	err = pg.Ping()
+	if err != nil {
+		log.Fatalf("Error pinging database: %v", err)
+	}
+	fmt.Println("Successfully connected to database!")
+
 	brokers := []string{"localhost:9093"}
 	topic := "orders"
 	group := "order-group"
@@ -83,6 +98,7 @@ func main() {
 	consumerGroupHandler := &consumer.ConsumerGroupHandler{
 		Cache:       orderCache,
 		UpdateCache: updateOrderCache,
+		DB:          pg,
 	}
 	kafkaConsumer := consumer.NewKafkaConsumer(brokers, topic, group)
 	kafkaConsumer.GroupHandler = consumerGroupHandler
