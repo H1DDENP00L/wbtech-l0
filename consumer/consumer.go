@@ -14,10 +14,10 @@ import (
 )
 
 type KafkaConsumer struct {
-	brokers []string
-	topic   string
-	group   string
-	cache   map[string]producer.Order
+	brokers      []string
+	topic        string
+	group        string
+	GroupHandler *ConsumerGroupHandler
 }
 
 func NewKafkaConsumer(brokers []string, topic, group string) *KafkaConsumer {
@@ -25,17 +25,7 @@ func NewKafkaConsumer(brokers []string, topic, group string) *KafkaConsumer {
 		brokers: brokers,
 		topic:   topic,
 		group:   group,
-		cache:   make(map[string]producer.Order),
 	}
-}
-
-// GetCache возвращает копию текущего кеша заказов
-func (kc *KafkaConsumer) GetCache() map[string]producer.Order {
-	cacheCopy := make(map[string]producer.Order)
-	for key, value := range kc.cache {
-		cacheCopy[key] = value
-	}
-	return cacheCopy
 }
 
 func (kc *KafkaConsumer) Start() error {
@@ -47,13 +37,11 @@ func (kc *KafkaConsumer) Start() error {
 	if err != nil {
 		return fmt.Errorf("ошибка создания consumer group: %w", err)
 	}
-	handler := &consumerGroupHandler{cache: kc.cache}
+	handler := kc.GroupHandler
 
-	// Создаем контекст, который можно завершить вручную
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Обработка сигналов для корректного завершения работы
 	go func() {
 		signals := make(chan os.Signal, 1)
 		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -66,7 +54,6 @@ func (kc *KafkaConsumer) Start() error {
 			if err := consumerGroup.Consume(ctx, []string{kc.topic}, handler); err != nil {
 				log.Printf("Ошибка во время чтения сообщений: %v", err)
 			}
-			// Завершаем, если контекст завершен
 			if ctx.Err() != nil {
 				return
 			}
@@ -74,31 +61,33 @@ func (kc *KafkaConsumer) Start() error {
 	}()
 
 	log.Println("Kafka consumer запущен и ожидает сообщения")
-	<-ctx.Done() // Ожидание завершения контекста
+	<-ctx.Done()
 	log.Println("Kafka consumer остановлен")
 	return nil
 }
 
-type consumerGroupHandler struct {
-	cache map[string]producer.Order
+type ConsumerGroupHandler struct {
+	Cache       map[string]producer.Order
+	UpdateCache func(order producer.Order)
 }
 
-func (h *consumerGroupHandler) Setup(sarama.ConsumerGroupSession) error {
+func (h *ConsumerGroupHandler) Setup(sarama.ConsumerGroupSession) error {
 	return nil
 }
 
-func (h *consumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error {
+func (h *ConsumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error {
 	return nil
 }
 
-func (h *consumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
 		var order producer.Order
 		if err := json.Unmarshal(message.Value, &order); err != nil {
 			log.Printf("Ошибка десериализации сообщения: %v", err)
 			continue
 		}
-		h.cache[order.OrderUID] = order // Кэшируем по OrderUID
+
+		h.UpdateCache(order)
 		log.Printf("Получено сообщение: %v", order)
 		session.MarkMessage(message, "")
 	}
