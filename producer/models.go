@@ -30,37 +30,39 @@ type Order struct {
 		GoodsTotal   int    `json:"goods_total"`
 		CustomFee    int    `json:"custom_fee"`
 	} `json:"payment"`
-	Items []struct {
-		ChrtID      int    `json:"chrt_id"`
-		TrackNumber string `json:"track_number"`
-		Price       int    `json:"price"`
-		Rid         string `json:"rid"`
-		Name        string `json:"name"`
-		Sale        int    `json:"sale"`
-		Size        string `json:"size"`
-		TotalPrice  int    `json:"total_price"`
-		NmID        int    `json:"nm_id"`
-		Brand       string `json:"brand"`
-		Status      int    `json:"status"`
-	} `json:"items"`
-	Locale            string `json:"locale"`
-	InternalSignature string `json:"internal_signature"`
-	CustomerID        string `json:"customer_id"`
-	DeliveryService   string `json:"delivery_service"`
-	Shardkey          string `json:"shardkey"`
-	SmID              int    `json:"sm_id"`
-	DateCreated       string `json:"date_created"`
-	OofShard          string `json:"oof_shard"`
+	Items             []Items `json:"items"`
+	Locale            string  `json:"locale"`
+	InternalSignature string  `json:"internal_signature"`
+	CustomerID        string  `json:"customer_id"`
+	DeliveryService   string  `json:"delivery_service"`
+	Shardkey          string  `json:"shardkey"`
+	SmID              int     `json:"sm_id"`
+	DateCreated       string  `json:"date_created"`
+	OofShard          string  `json:"oof_shard"`
+}
+
+type Items struct {
+	ChrtID      int    `json:"chrt_id"`
+	TrackNumber string `json:"track_number"`
+	Price       int    `json:"price"`
+	Rid         string `json:"rid"`
+	Name        string `json:"name"`
+	Sale        int    `json:"sale"`
+	Size        string `json:"size"`
+	TotalPrice  int    `json:"total_price"`
+	NmID        int    `json:"nm_id"`
+	Brand       string `json:"brand"`
+	Status      int    `json:"status"`
 }
 
 func GenerateOrder() Order {
 
 	return Order{
 		OrderUID:    uuid.New().String(),
-		TrackNumber: "TRACK-67890",
-		Entry:       "web",
+		TrackNumber: "WBILMTESTTRACK",
+		Entry:       "WBIL",
 		Locale:      "ru",
-		CustomerID:  "customer-98765",
+		CustomerID:  "customer-46064",
 		DateCreated: time.Now().Format(time.RFC3339),
 		Delivery: struct {
 			Name    string `json:"name"`
@@ -71,13 +73,13 @@ func GenerateOrder() Order {
 			Region  string `json:"region"`
 			Email   string `json:"email"`
 		}{
-			Name:    "Иван Иванов",
+			Name:    "Владимир Максимович",
 			Phone:   "+79998887766",
-			Zip:     "123456",
+			Zip:     "606066",
 			City:    "Москва",
-			Address: "ул. Ленина, д.1",
+			Address: "ул. Большая Садовая, 10",
 			Region:  "Московская область",
-			Email:   "ivanov@example.com",
+			Email:   "wbEnjoyer@example.com",
 		},
 		Payment: struct {
 			Transaction  string `json:"transaction"`
@@ -91,42 +93,30 @@ func GenerateOrder() Order {
 			GoodsTotal   int    `json:"goods_total"`
 			CustomFee    int    `json:"custom_fee"`
 		}{
-			Transaction:  "trans-12345",
-			RequestID:    "req-67890",
+			Transaction:  "b563feb7b2b84b6test",
+			RequestID:    "req-46064",
 			Currency:     "RUB",
-			Provider:     "Visa",
-			Amount:       15000,
+			Provider:     "MIR",
+			Amount:       1817,
 			PaymentDt:    time.Now().Unix(),
-			Bank:         "Сбербанк",
-			DeliveryCost: 300,
-			GoodsTotal:   14700,
+			Bank:         "Sber",
+			DeliveryCost: 0,
+			GoodsTotal:   12054,
 			CustomFee:    0,
 		},
-		Items: []struct {
-			ChrtID      int    `json:"chrt_id"`
-			TrackNumber string `json:"track_number"`
-			Price       int    `json:"price"`
-			Rid         string `json:"rid"`
-			Name        string `json:"name"`
-			Sale        int    `json:"sale"`
-			Size        string `json:"size"`
-			TotalPrice  int    `json:"total_price"`
-			NmID        int    `json:"nm_id"`
-			Brand       string `json:"brand"`
-			Status      int    `json:"status"`
-		}{
+		Items: []Items{
 			{
 				ChrtID:      123,
-				TrackNumber: "TRACK-67890",
-				Price:       5000,
-				Rid:         "RID-1",
-				Name:        "Товар 1",
-				Sale:        0,
-				Size:        "M",
-				TotalPrice:  5000,
-				NmID:        111,
-				Brand:       "Бренд 1",
-				Status:      1,
+				TrackNumber: "WBILMTESTTRACK",
+				Price:       12054,
+				Rid:         "ab5212088b777ae0btest",
+				Name:        "Рубашка",
+				Sale:        12,
+				Size:        "L",
+				TotalPrice:  12054,
+				NmID:        12688120,
+				Brand:       "bikkembergs",
+				Status:      202,
 			},
 		},
 	}

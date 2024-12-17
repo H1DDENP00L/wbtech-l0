@@ -36,7 +36,7 @@ func (kc *KafkaConsumer) Start() error {
 
 	consumerGroup, err := sarama.NewConsumerGroup(kc.brokers, kc.group, config)
 	if err != nil {
-		return fmt.Errorf("ошибка создания consumer group: %w", err)
+		return fmt.Errorf("ошибка создания Consumer Group: %w", err)
 	}
 	handler := kc.GroupHandler
 
@@ -61,17 +61,16 @@ func (kc *KafkaConsumer) Start() error {
 		}
 	}()
 
-	log.Println("Kafka consumer запущен и ожидает сообщения")
+	log.Println("Kafka Consumer запущен и ожидает сообщения...")
 	<-ctx.Done()
-	log.Println("Kafka consumer остановлен")
+	log.Println("Kafka Consumer остановлен.")
 	return nil
 }
 
 type ConsumerGroupHandler struct {
 	Cache       map[string]producer.Order
 	UpdateCache func(order producer.Order)
-	DB          *sql.DB // Добавляем поле для работы с базой данных
-
+	DB          *sql.DB
 }
 
 func (h *ConsumerGroupHandler) Setup(sarama.ConsumerGroupSession) error {
@@ -91,7 +90,6 @@ func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 		}
 
 		h.UpdateCache(order)
-		fmt.Println("СУКАААААААААААААААА")
 		h.processOrder(session, order)
 		log.Printf("Получено сообщение: %v ", order)
 		session.MarkMessage(message, "")

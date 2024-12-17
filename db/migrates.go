@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"         // PostgreSQL драйвер
@@ -9,35 +10,23 @@ import (
 )
 
 const (
-	DbDriver = "postgres"
-	DbSource = "postgres://postgres:zxc@localhost:5432/wbtech?sslmode=disable"
+	DbDriver      = "postgres"
+	DbSource      = "postgres://postgres:zxc@localhost:5432/wbtech?sslmode=disable"
+	migrationsDir = "./migrates"
 )
 
-func DatabaseDown() {
-	// Подключение к базе данных
-	db, err := sql.Open(DbDriver, DbSource)
-	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
+func DatabaseDown(db *sql.DB) error {
+	if err := goose.DownTo(db, migrationsDir, 0); err != nil {
+		return fmt.Errorf("Не удалось применить миграции: %w", err)
 	}
-	defer db.Close()
-	if err := goose.DownTo(db, "./migrates", 0); err != nil {
-		log.Fatalf("Ошибка выполнения миграций: %v", err)
-	}
-	log.Println("Таблицам пиздец!")
+	log.Println("Миграции применены успешно Все таблицы удалены!")
+	return nil
 }
 
-func DatabaseUp() {
-	// Подключение к базе данных
-	db, err := sql.Open(DbDriver, DbSource)
-	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
+func DatabaseUp(db *sql.DB) error {
+	if err := goose.Up(db, migrationsDir); err != nil {
+		return fmt.Errorf("Не удалось применить миграции: %w", err)
 	}
-	defer db.Close()
-
-	// Применение миграций
-	if err := goose.Up(db, "./migrates"); err != nil {
-		log.Fatalf("Ошибка выполнения миграций: %v", err)
-	}
-
-	log.Println("Миграции успешно применены!")
+	log.Println("Миграции применены успешно Все таблицы работают!")
+	return nil
 }

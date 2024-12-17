@@ -39,6 +39,7 @@ func (kp *KafkaProducer) SendMessage(order interface{}) error {
 		return fmt.Errorf("ошибка отправки сообщения: %w", err)
 	}
 
+	// Логирование)
 	log.Printf("Сообщение отправлено в топик %s [partition: %d, offset: %d]\n", kp.topic, partition, offset)
 	return nil
 }
