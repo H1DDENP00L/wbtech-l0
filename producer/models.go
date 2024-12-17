@@ -2,6 +2,7 @@ package producer
 
 import (
 	"github.com/google/uuid"
+	"math/rand"
 	"time"
 )
 
@@ -114,19 +115,10 @@ func GenerateOrder() Order {
 				Sale:        12,
 				Size:        "L",
 				TotalPrice:  12054,
-				NmID:        12688120,
+				NmID:        10000 + rand.Intn(90000),
 				Brand:       "bikkembergs",
 				Status:      202,
 			},
 		},
 	}
 }
-
-//func randomStr(str string, lenStr int) string {
-//	var b strings.Builder
-//	for i := 0; i < lenStr; i++ {
-//		ch := string(str[rand.Intn(len(str))])
-//		b.WriteString(ch)
-//	}
-//	return b.String()
-//}

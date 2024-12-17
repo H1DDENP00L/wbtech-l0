@@ -17,4 +17,3 @@ CREATE TABLE items (
 
 -- +goose Down
 DROP TABLE IF EXISTS items;
-

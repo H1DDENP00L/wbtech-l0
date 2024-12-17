@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
+
 	_ "github.com/lib/pq"
 	"l0/consts"
 	"l0/consumer"
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Не удалось пингануть БД: %v", err)
 	}
-	fmt.Println("Подклюение к БД успешно!")
+	log.Println("Подклюение к БД успешно!")
 
 	db.LoadCacheFromDB(pg)
 	//fmt.Println(consts.OrderCache) использовал для дебага)))

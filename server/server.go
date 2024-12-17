@@ -30,7 +30,7 @@ func RunServer() {
 	})
 
 	port := 8070
-	fmt.Printf("Сервер запущен на порту: %d\n", port)
+	log.Printf("Сервер запущен на порту: %d\n", port)
 	go func() {
 		if err := router.Run(fmt.Sprintf(":%d", port)); err != nil {
 			log.Fatalf("Ошибка запуска http сервера: %v", err)
