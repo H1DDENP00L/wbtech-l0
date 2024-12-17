@@ -13,6 +13,13 @@
 5. **Kafka**
 6. **Redpanda Console**
 
+### Библиотеки
+1. **gin-gonic/gin**
+2. **pressly/goose/v3**
+3. **IBM/sarama**
+4. **lib/pq**
+
+
 ### Запуск
 1.  **Установите зависимости:**
 
